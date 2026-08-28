@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>私人 Agent 数据平台 · 迭代开发计划</title>
+  <meta name="description" content="从最小可用产品逐步迭代到完整 Agent-first 私人数据平台">
+  <style>
+    :root {
+      --ink: #182126;
+      --muted: #617078;
+      --line: #d8e0e3;
+      --paper: #ffffff;
+      --soft: #f4f7f7;
+      --nav: #172229;
+      --teal: #087e72;
+      --teal-soft: #e7f5f2;
+      --blue: #2867b2;
+      --blue-soft: #eaf1fa;
+      --green: #267247;
+      --green-soft: #e9f5ee;
+      --gold: #8c6818;
+      --gold-soft: #faf3df;
+      --coral: #b94f3b;
+      --coral-soft: #faece8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 980px; margin-bottom: 18px; font-size: 46px; line-height: 1.14; }
+    h2 { margin-bottom: 10px; font-size: 28px; line-height: 1.3; }
+    h3 { margin-bottom: 7px; font-size: 17px; line-height: 1.4; }
+    a { color: inherit; }
+    .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      color: #fff;
+      background: var(--nav);
+    }
+    .brand { padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,.13); }
+    .brand strong { display: block; line-height: 1.4; }
+    .brand small { color: #a9b6bc; }
+    nav { padding-top: 18px; }
+    nav a {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 38px;
+      padding: 7px 9px;
+      border-radius: 6px;
+      color: #a9b6bc;
+      text-decoration: none;
+    }
+    nav a:hover, nav a.active { color: #fff; background: rgba(255,255,255,.08); }
+    nav span { width: 24px; color: #6ed0c3; font-size: 12px; }
+    .aside-note {
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      color: #b8c4c9;
+      font-size: 12px;
+    }
+    main { min-width: 0; }
+    section { padding: 60px clamp(30px, 5vw, 76px); border-bottom: 1px solid var(--line); }
+    section:nth-child(even) { background: var(--soft); }
+    .inner { max-width: 1220px; margin: 0 auto; }
+    .cover { min-height: 630px; display: flex; align-items: center; background: var(--paper) !important; }
+    .eyebrow { display: flex; gap: 8px; margin-bottom: 20px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill.green { color: var(--green); background: var(--green-soft); }
+    .pill.gold { color: var(--gold); background: var(--gold-soft); }
+    .pill.coral { color: var(--coral); background: var(--coral-soft); }
+    .lead { max-width: 880px; color: var(--muted); font-size: 19px; }
+    .decision {
+      margin-top: 32px;
+      padding: 24px 26px;
+      border-left: 5px solid var(--teal);
+      background: var(--teal-soft);
+    }
+    .decision strong { display: block; margin-bottom: 7px; color: var(--teal); font-size: 18px; }
+    .section-head { display: grid; grid-template-columns: 150px 1fr; gap: 24px; margin-bottom: 30px; }
+    .section-no { color: var(--teal); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .section-intro { max-width: 900px; margin: 0; color: var(--muted); }
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .principle {
+      min-height: 170px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--teal);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .principle:nth-child(2) { border-top-color: var(--blue); }
+    .principle:nth-child(3) { border-top-color: var(--gold); }
+    .principle:nth-child(4) { border-top-color: var(--coral); }
+    .principle b { display: block; margin-bottom: 8px; color: var(--teal); font-size: 12px; }
+    .principle p { margin: 0; color: var(--muted); font-size: 13px; }
+    .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .scope {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .scope.in { border-top: 5px solid var(--green); }
+    .scope.out { border-top: 5px solid var(--coral); }
+    .scope ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+    .scope li { margin: 7px 0; }
+    .loop {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .loop-step {
+      position: relative;
+      min-height: 118px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .loop-step b { display: block; margin-bottom: 7px; color: var(--teal); font-size: 12px; }
+    .loop-step span { color: var(--muted); font-size: 12px; }
+    .loop-step::after {
+      content: "→";
+      position: absolute;
+      top: 42px;
+      right: -17px;
+      z-index: 2;
+      color: #8b989e;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .loop-step:last-child::after { display: none; }
+    .phase-list { display: grid; gap: 18px; }
+    .phase {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1.1fr) minmax(0, .9fr);
+      gap: 22px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .phase-tag {
+      padding-right: 18px;
+      border-right: 1px solid var(--line);
+    }
+    .phase-tag b { display: block; color: var(--teal); font-size: 24px; }
+    .phase-tag span { display: block; color: var(--muted); font-size: 12px; }
+    .phase ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+    .phase li { margin: 5px 0; }
+    .gate {
+      padding: 16px;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+    }
+    .gate strong { display: block; margin-bottom: 6px; color: var(--green); }
+    .gate p { margin: 0; color: #3f5e4d; font-size: 13px; }
+    .phase.zero .phase-tag b { color: var(--gold); }
+    .phase.mvp { border-width: 2px; border-color: var(--teal); }
+    .phase.future { background: #fbfcfc; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); background: #f3f6f7; font-size: 12px; }
+    td { font-size: 13px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .yes { color: var(--green); font-weight: 700; }
+    .later { color: var(--blue); font-weight: 700; }
+    .no { color: var(--coral); font-weight: 700; }
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .component {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .component i {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      color: var(--teal);
+      background: var(--teal-soft);
+    }
+    .component p { margin: 0; color: var(--muted); font-size: 13px; }
+    .release-rule {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .rule {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .rule strong { display: block; margin-bottom: 8px; color: var(--teal); }
+    .rule p { margin: 0; color: var(--muted); font-size: 13px; }
+    footer { padding: 30px clamp(30px, 5vw, 76px); color: #b8c4c9; background: var(--nav); font-size: 12px; }
+    @media (max-width: 1180px) {
+      .principles { grid-template-columns: repeat(2, 1fr); }
+      .loop { grid-template-columns: repeat(3, 1fr); }
+      .loop-step:nth-child(3)::after { display: none; }
+      .architecture { grid-template-columns: repeat(3, 1fr); }
+      .phase { grid-template-columns: 130px 1fr; }
+      .phase .gate { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <strong>私人 Agent 数据平台</strong>
+        <small>迭代开发计划 · 2026-08-28</small>
+      </div>
+      <nav>
+        <a href="#decision"><span>01</span>拆分结论</a>
+        <a href="#mvp"><span>02</span>MVP 边界</a>
+        <a href="#roadmap"><span>03</span>迭代路线</a>
+        <a href="#matrix"><span>04</span>功能矩阵</a>
+        <a href="#architecture"><span>05</span>技术边界</a>
+        <a href="#delivery"><span>06</span>交付规则</a>
+      </nav>
+      <div class="aside-note">
+        每一阶段都必须能独立使用、验证价值并部署。未通过验收门槛，不进入下一阶段。
+      </div>
+    </aside>
+
+    <main>
+      <section class="cover" id="decision">
+        <div class="inner">
+          <div class="eyebrow">
+            <span class="pill green">先闭环</span>
+            <span class="pill gold">逐步加深</span>
+            <span class="pill coral">拒绝一次做完</span>
+          </div>
+          <h1>先让一个 Agent 用好一批私人数据，再逐步建设完整平台</h1>
+          <p class="lead">
+            原 PRD 适合作为最终能力地图，但不适合作为首个版本的开发清单。
+            新计划以“单用户、网页端、NAS 数据、Agent 可检索并生成有来源的产物”为 MVP，
+            把多模态理解、外部操作、手机 App、共同记忆、多用户和完整治理分阶段加入。
+          </p>
+          <div class="decision">
+            <strong>MVP 唯一目标</strong>
+            将 NAS 中的私人文件登记为可追溯数据，让用户可以浏览和搜索，
+            让一个持有 Token 的 Agent 可以在权限范围内检索、读取并生成带来源引用的新报告，
+            且每次操作都有事件记录。
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">Split Rules</div>
+            <div>
+              <h2>四条复杂度控制原则</h2>
+              <p class="section-intro">这些原则用于阻止完整 PRD 再次整体进入首版。</p>
+            </div>
+          </div>
+          <div class="principles">
+            <div class="principle"><b>01 · 先数据后动作</b><h3>先证明 Agent 找得到</h3><p>没有稳定的数据登记、检索、引用和权限过滤前，不接浏览器、邮件及其他外部动作。</p></div>
+            <div class="principle"><b>02 · 先网页后 App</b><h3>先稳定后端契约</h3><p>MVP 使用桌面网页。Flutter App 在上传、对象、权限和事件 API 稳定后开始。</p></div>
+            <div class="principle"><b>03 · 先单用户后多用户</b><h3>保留 user_id，不做管理体系</h3><p>数据模型从第一天带用户字段，但 MVP 只服务一个实际用户，不建设跨用户管理。</p></div>
+            <div class="principle"><b>04 · 事件从第一天开始</b><h3>先记录，不先做复杂恢复</h3><p>MVP 记录谁做了什么及结果；检查点、重放、补偿和多 Agent 交接后续增加。</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mvp">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">MVP Scope</div>
+            <div>
+              <h2>MVP 只做一个最小真实闭环</h2>
+              <p class="section-intro">预计 3–4 周，不含前置技术验证。时间为单人配合 AI 开发的规划值，不是固定承诺。</p>
+            </div>
+          </div>
+          <div class="scope-grid">
+            <div class="scope in">
+              <h3>必须完成</h3>
+              <ul>
+                <li>扫描并登记 `/volume1/agent-first-data` 中的现有文件。</li>
+                <li>网页上传、列表、详情、下载、基础预览和软删除恢复。</li>
+                <li>稳定对象 ID、内容哈希、来源、类型、大小和时间元数据。</li>
+                <li>PDF/纯文本正文提取；其他媒体先登记基础元数据。</li>
+                <li>Voyage AI Embedding，MongoDB 元数据过滤与向量搜索。</li>
+                <li>一个用户、一个管理员、一个 Agent Token。</li>
+                <li>Agent 搜索、读取和创建派生报告的 API。</li>
+                <li>上传、读取、搜索、生成、删除和恢复的事件记录。</li>
+              </ul>
+            </div>
+            <div class="scope out">
+              <h3>明确不做</h3>
+              <ul>
+                <li>不做 Flutter 或原生手机 App。</li>
+                <li>不做多用户后台和跨用户访问。</li>
+                <li>不做浏览器、邮件、记账等外部操作。</li>
+                <li>不做图片视觉理解、音频转录和视频关键帧理解。</li>
+                <li>不做 Skill 商店、复杂记忆晋升和多 Agent 协作。</li>
+                <li>不做完整 Task/Run/Checkpoint 恢复引擎。</li>
+                <li>不做 S3 实际部署，只保留存储适配器接口。</li>
+                <li>不做永久物理清除，只做可恢复软删除。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="loop">
+            <div class="loop-step"><b>1 · 登记</b><span>扫描 NAS 文件或网页上传，生成稳定对象 ID。</span></div>
+            <div class="loop-step"><b>2 · 提取</b><span>保存元数据，提取 PDF 与文本内容。</span></div>
+            <div class="loop-step"><b>3 · 索引</b><span>生成向量，记录模型、输入哈希和状态。</span></div>
+            <div class="loop-step"><b>4 · 检索</b><span>用户或 Agent 根据问题找到相关数据。</span></div>
+            <div class="loop-step"><b>5 · 生成</b><span>Agent 创建带对象引用的派生报告。</span></div>
+            <div class="loop-step"><b>6 · 留痕</b><span>所有访问和变化进入追加式事件记录。</span></div>
+          </div>
+          <div class="decision">
+            <strong>MVP 验收门槛</strong>
+            当前 20 个样例文件全部登记且 Raw 不被改写；PDF 可检索；Agent 能生成一份带来源对象 ID 的报告；
+            所有 Agent API 调用可追踪；软删除后不再被搜索且可以恢复。
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">Roadmap</div>
+            <div>
+              <h2>从 MVP 到最终功能的六次迭代</h2>
+              <p class="section-intro">每个版本只增加一种主要复杂度，不同时引入数据、终端、权限和运行时四类变化。</p>
+            </div>
+          </div>
+          <div class="phase-list">
+            <article class="phase zero">
+              <div class="phase-tag"><b>阶段 0</b><strong>技术验证</strong><span>3–5 个工作日</span></div>
+              <div><h3>证明关键依赖可用</h3><ul><li>NAS 目录只读扫描与测试目录写入</li><li>MongoDB 数据模型和基础索引</li><li>Voyage AI 调用与费用记录</li><li>文件哈希、对象 ID 与存储适配器</li><li>本地开发和 NAS 容器运行验证</li></ul></div>
+              <div class="gate"><strong>进入 MVP 的条件</strong><p>20 个样例文件可稳定扫描；重复扫描不产生重复对象；任意对象可由逻辑 ID 定位回 NAS 文件。</p></div>
+            </article>
+
+            <article class="phase mvp">
+              <div class="phase-tag"><b>MVP</b><strong>数据可被 Agent 使用</strong><span>3–4 周</span></div>
+              <div><h3>完成最小真实闭环</h3><ul><li>网页数据管理</li><li>PDF/文本提取和向量检索</li><li>Agent Token 与三项核心 API</li><li>派生报告和来源引用</li><li>基础事件记录与软删除</li></ul></div>
+              <div class="gate"><strong>版本价值</strong><p>首次证明 Agent 可以在不直接遍历 NAS 的情况下，安全地发现、读取和引用私人数据。</p></div>
+            </article>
+
+            <article class="phase">
+              <div class="phase-tag"><b>V0.2</b><strong>多模态上下文</strong><span>3–4 周</span></div>
+              <div><h3>让更多文件真正可搜索</h3><ul><li>图片 EXIF、缩略图、OCR 和视觉描述</li><li>音频转录、时间片段和摘要</li><li>视频关键帧、音轨转录和时间定位</li><li>全文 + 向量 + 元数据混合检索</li><li>Rerank、Chunk 和索引生命周期</li></ul></div>
+              <div class="gate"><strong>进入下一阶段的条件</strong><p>四种媒体均能返回可引用片段；索引失败可见、可重试；源文件变化能触发重新处理。</p></div>
+            </article>
+
+            <article class="phase">
+              <div class="phase-tag"><b>V0.3</b><strong>Agent 执行</strong><span>4–5 周</span></div>
+              <div><h3>从“检索”升级为“完成任务”</h3><ul><li>Task、Run、Step 和最小检查点</li><li>Agent 修改草稿、创建正式产物</li><li>动作风险等级与逐次审批</li><li>浏览器能力优先接入，邮件随后接入</li><li>重试、取消、超时和外部动作收据</li></ul></div>
+              <div class="gate"><strong>进入下一阶段的条件</strong><p>一个中断任务可继续；外部动作均能看到原因、授权、输入、结果和失败状态。</p></div>
+            </article>
+
+            <article class="phase">
+              <div class="phase-tag"><b>V0.4</b><strong>手机采集与记忆</strong><span>4–6 周</span></div>
+              <div><h3>建立日常使用入口</h3><ul><li>Flutter App 拍照、选择文件、分享导入</li><li>后台上传队列、断点续传和失败重试</li><li>手机浏览、搜索、软删除和审批</li><li>任务摘要、经验候选和用户纠正</li><li>基础 Tool/Skill 注册、版本和测试状态</li></ul></div>
+              <div class="gate"><strong>进入下一阶段的条件</strong><p>手机采集数据可在 Agent 检索中出现；换一个 Agent 后能读取任务摘要和已确认经验。</p></div>
+            </article>
+
+            <article class="phase">
+              <div class="phase-tag"><b>V1.0</b><strong>可正式使用</strong><span>4–6 周</span></div>
+              <div><h3>补齐生产治理</h3><ul><li>网页多用户管理，App 单用户登录</li><li>细粒度 Token、临时授权和跨用户原因</li><li>回收站、待清除、永久清除和备份过期</li><li>管理员“仅系统管理/临时授权”模式</li><li>S3 适配、备份恢复、监控和安全加固</li></ul></div>
+              <div class="gate"><strong>正式使用条件</strong><p>权限越界测试全部拒绝；备份恢复演练通过；删除链路可解释；NAS 故障不会造成元数据与 Raw 对象关系丢失。</p></div>
+            </article>
+
+            <article class="phase future">
+              <div class="phase-tag"><b>V2+</b><strong>Agent 操作系统</strong><span>按真实需求演进</span></div>
+              <div><h3>只在使用量证明必要后建设</h3><ul><li>多 Agent 协作、交接和长期运行</li><li>完整检查点、事件重放和补偿事务</li><li>时间视图与历史上下文复现</li><li>反馈评估、经验晋升和 Skill 回归测试</li><li>记账及更多第三方权限域</li></ul></div>
+              <div class="gate"><strong>启动依据</strong><p>不是因为架构“应该有”，而是已有任务量、失败模式或协作需求无法由 V1 解决。</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="matrix">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">Scope Matrix</div>
+            <div><h2>关键功能进入哪个版本</h2><p class="section-intro">用于评审需求是否被过早塞入当前迭代。</p></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>能力</th><th>阶段 0</th><th>MVP</th><th>V0.2</th><th>V0.3</th><th>V0.4</th><th>V1.0 / V2+</th></tr></thead>
+              <tbody>
+                <tr><td>NAS Raw 与稳定对象 ID</td><td class="yes">验证</td><td class="yes">正式使用</td><td>增强</td><td>沿用</td><td>沿用</td><td>S3 迁移</td></tr>
+                <tr><td>网页上传、浏览、软删除</td><td class="no">不做</td><td class="yes">完成</td><td>媒体预览</td><td>审批视图</td><td>沿用</td><td>多用户</td></tr>
+                <tr><td>Agent 搜索、读取、生成报告</td><td class="no">接口验证</td><td class="yes">完成</td><td>多模态</td><td>任务化</td><td>记忆辅助</td><td>多 Agent</td></tr>
+                <tr><td>图片、音频、视频理解</td><td class="no">不做</td><td class="no">仅登记</td><td class="yes">完成</td><td>沿用</td><td>手机采集</td><td>模型升级</td></tr>
+                <tr><td>浏览器与邮件操作</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td class="yes">逐项接入</td><td>手机审批</td><td>更多第三方</td></tr>
+                <tr><td>Flutter App</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td class="no">准备 API</td><td class="yes">完成</td><td>持续优化</td></tr>
+                <tr><td>复杂记忆与 Skill</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td>任务摘要</td><td class="yes">基础版</td><td>评估晋升</td></tr>
+                <tr><td>多用户与跨用户治理</td><td class="no">不做</td><td class="no">仅保留字段</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td class="yes">V1.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">MVP Architecture</div>
+            <div>
+              <h2>MVP 使用模块化单体，不拆微服务</h2>
+              <p class="section-intro">部署简单，但代码边界清楚，后续版本可以在不替换数据模型的情况下扩展。</p>
+            </div>
+          </div>
+          <div class="architecture">
+            <div class="component"><i data-lucide="monitor"></i><h3>Web</h3><p>上传、浏览、搜索、详情、删除恢复和 Agent 产物查看。</p></div>
+            <div class="component"><i data-lucide="blocks"></i><h3>应用后端</h3><p>单一 API，内部按数据、检索、Agent、权限、事件模块分层。</p></div>
+            <div class="component"><i data-lucide="hard-drive"></i><h3>NAS Adapter</h3><p>Raw 文件只通过存储适配器访问，不把绝对路径暴露给 Agent。</p></div>
+            <div class="component"><i data-lucide="database"></i><h3>MongoDB</h3><p>对象、元数据、任务、事件和向量索引使用同一数据库起步。</p></div>
+            <div class="component"><i data-lucide="sparkles"></i><h3>处理 Worker</h3><p>文件提取、Embedding 和重试；MVP 不引入 Kafka 或 Kubernetes。</p></div>
+          </div>
+          <div class="decision">
+            <strong>从第一天保留，但暂不实现完整功能</strong>
+            所有对象包含 user_id、storage_provider、version、source 和 sensitivity；
+            所有事件包含 actor、action、target、purpose、status 和 correlation_id。
+            这些字段用于保证后续多用户、S3、权限和任务恢复无需重建基础数据。
+          </div>
+        </div>
+      </section>
+
+      <section id="delivery">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">Delivery Gates</div>
+            <div><h2>每次迭代的交付规则</h2><p class="section-intro">避免“功能做了很多，但没有一个版本真正可用”。</p></div>
+          </div>
+          <div class="release-rule">
+            <div class="rule"><strong>范围冻结</strong><p>迭代开始后，新想法进入候选池。除非阻塞当前闭环，不临时加入开发范围。</p></div>
+            <div class="rule"><strong>证据验收</strong><p>每个版本必须用真实 NAS 样例、真实 Agent Token 和失败场景演示，不能只看页面。</p></div>
+            <div class="rule"><strong>人工激活</strong><p>版本通过验收后由用户决定是否进入下一阶段；未通过则修复，不用新功能掩盖问题。</p></div>
+          </div>
+          <div class="decision">
+            <strong>建议立即锁定的第一项工作</strong>
+            先完成阶段 0，不直接进入完整 MVP。阶段 0 的输出应是一份可重复运行的技术验证报告，
+            明确 NAS、MongoDB、Voyage AI、对象 ID 和部署方式是否真实可行。
+          </div>
+        </div>
+      </section>
+
+      <footer>私人 Agent 数据平台 · 迭代开发计划 · 2026-08-28</footer>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script>
+    if (window.lucide) {
+      window.lucide.createIcons({ attrs: { width: 18, height: 18, "stroke-width": 1.8 } });
+    }
+    const sections = [...document.querySelectorAll("main section[id]")];
+    const links = [...document.querySelectorAll("nav a")];
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        links.forEach((link) => {
+          link.classList.toggle("active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    sections.forEach((section) => observer.observe(section));
+  </script>
+</body>
+</html>
