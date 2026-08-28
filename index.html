@@ -157,6 +157,30 @@
       font-weight: 800;
     }
     .loop-step:last-child::after { display: none; }
+    .access-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .access-card {
+      min-height: 170px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .access-card:nth-child(2) { border-top-color: var(--teal); }
+    .access-card:nth-child(3) { border-top-color: var(--gold); }
+    .access-card strong { display: block; margin-bottom: 8px; font-size: 17px; }
+    .access-card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .agent-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .agent-flow .loop-step { min-height: 108px; }
     .phase-list { display: grid; gap: 18px; }
     .phase {
       display: grid;
@@ -196,7 +220,7 @@
     .no { color: var(--coral); font-weight: 700; }
     .architecture {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
     .component {
@@ -234,6 +258,9 @@
       .principles { grid-template-columns: repeat(2, 1fr); }
       .loop { grid-template-columns: repeat(3, 1fr); }
       .loop-step:nth-child(3)::after { display: none; }
+      .access-grid { grid-template-columns: 1fr; }
+      .agent-flow { grid-template-columns: repeat(3, 1fr); }
+      .agent-flow .loop-step:nth-child(3)::after { display: none; }
       .architecture { grid-template-columns: repeat(3, 1fr); }
       .phase { grid-template-columns: 130px 1fr; }
       .phase .gate { grid-column: 2; }
@@ -250,10 +277,11 @@
       <nav>
         <a href="#decision"><span>01</span>拆分结论</a>
         <a href="#mvp"><span>02</span>MVP 边界</a>
-        <a href="#roadmap"><span>03</span>迭代路线</a>
-        <a href="#matrix"><span>04</span>功能矩阵</a>
-        <a href="#architecture"><span>05</span>技术边界</a>
-        <a href="#delivery"><span>06</span>交付规则</a>
+        <a href="#agent-access"><span>03</span>Agent 接入</a>
+        <a href="#roadmap"><span>04</span>迭代路线</a>
+        <a href="#matrix"><span>05</span>功能矩阵</a>
+        <a href="#architecture"><span>06</span>技术边界</a>
+        <a href="#delivery"><span>07</span>交付规则</a>
       </nav>
       <div class="aside-note">
         每一阶段都必须能独立使用、验证价值并部署。未通过验收门槛，不进入下一阶段。
@@ -267,6 +295,7 @@
             <span class="pill green">先闭环</span>
             <span class="pill gold">逐步加深</span>
             <span class="pill coral">拒绝一次做完</span>
+            <span class="pill green">标准接入</span>
           </div>
           <h1>先让一个 Agent 用好一批私人数据，再逐步建设完整平台</h1>
           <p class="lead">
@@ -277,7 +306,8 @@
           <div class="decision">
             <strong>MVP 唯一目标</strong>
             将 NAS 中的私人文件登记为可追溯数据，让用户可以浏览和搜索，
-            让一个持有 Token 的 Agent 可以在权限范围内检索、读取并生成带来源引用的新报告，
+            让一个只获得标准接入地址和用户授权的 Agent 可以自动发现平台能力，
+            在权限范围内检索、读取并生成带来源引用的新报告，
             且每次操作都有事件记录。
           </div>
         </div>
@@ -319,8 +349,10 @@
                 <li>稳定对象 ID、内容哈希、来源、类型、大小和时间元数据。</li>
                 <li>PDF/纯文本正文提取；其他媒体先登记基础元数据。</li>
                 <li>Voyage AI Embedding，MongoDB 元数据过滤与向量搜索。</li>
-                <li>一个用户、一个管理员、一个 Agent Token。</li>
-                <li>Agent 搜索、读取和创建派生报告的 API。</li>
+                <li>一个用户、一个管理员、一个可撤销的 Agent Token。</li>
+                <li>轻量 MCP Gateway，动态返回当前授权可用的工具和资源。</li>
+                <li>Agent 搜索、读取和创建派生报告的核心工具。</li>
+                <li>保留 OpenAPI 描述，兼容暂不支持 MCP 的 Agent。</li>
                 <li>上传、读取、搜索、生成、删除和恢复的事件记录。</li>
               </ul>
             </div>
@@ -332,6 +364,7 @@
                 <li>不做浏览器、邮件、记账等外部操作。</li>
                 <li>不做图片视觉理解、音频转录和视频关键帧理解。</li>
                 <li>不做 Skill 商店、复杂记忆晋升和多 Agent 协作。</li>
+                <li>不做 Agent 市场、A2A 协作和第三方 Agent 认证体系。</li>
                 <li>不做完整 Task/Run/Checkpoint 恢复引擎。</li>
                 <li>不做 S3 实际部署，只保留存储适配器接口。</li>
                 <li>不做永久物理清除，只做可恢复软删除。</li>
@@ -349,7 +382,46 @@
           <div class="decision">
             <strong>MVP 验收门槛</strong>
             当前 20 个样例文件全部登记且 Raw 不被改写；PDF 可检索；Agent 能生成一份带来源对象 ID 的报告；
-            所有 Agent API 调用可追踪；软删除后不再被搜索且可以恢复。
+            一个未预先编写平台专用代码的测试 Agent，只拿 MCP 地址和 Token 就能发现工具并完成上述任务；
+            所有 Agent 调用可追踪；软删除后不再被搜索且可以恢复。
+          </div>
+        </div>
+      </section>
+
+      <section id="agent-access">
+        <div class="inner">
+          <div class="section-head">
+            <div class="section-no">Agent Access</div>
+            <div>
+              <h2>让 Agent 自己发现怎么使用平台</h2>
+              <p class="section-intro">接入标准本身是产品能力。不能要求每个 Agent 开发者阅读私人平台说明书或单独编写适配代码。</p>
+            </div>
+          </div>
+          <div class="access-grid">
+            <div class="access-card">
+              <strong>MCP · 首选入口</strong>
+              <p>Agent 连接后自动读取可用 Tools、Resources、参数结构和调用说明。平台只返回当前用户授权范围内的能力。</p>
+            </div>
+            <div class="access-card">
+              <strong>OpenAPI · 兼容入口</strong>
+              <p>为支持导入 API 定义但暂不支持 MCP 的 Agent 提供机器可读契约，底层仍复用同一权限与事件模块。</p>
+            </div>
+            <div class="access-card">
+              <strong>SDK / Adapter · 最后兜底</strong>
+              <p>仅为缺少标准协议能力的 Agent 提供轻量适配器。平台不承诺任何完全不支持工具协议的 Agent 可以零改造接入。</p>
+            </div>
+          </div>
+          <div class="agent-flow">
+            <div class="loop-step"><b>1 · 连接</b><span>用户提供平台 MCP 地址。</span></div>
+            <div class="loop-step"><b>2 · 授权</b><span>MVP 使用可撤销 Token，正式版使用 OAuth。</span></div>
+            <div class="loop-step"><b>3 · 发现</b><span>Agent 自动读取工具、资源和所需权限。</span></div>
+            <div class="loop-step"><b>4 · 试运行</b><span>执行只读兼容性检查，不接触未授权数据。</span></div>
+            <div class="loop-step"><b>5 · 使用</b><span>按风险等级执行、审批并记录事件。</span></div>
+          </div>
+          <div class="decision">
+            <strong>面向 C 端的产品入口</strong>
+            用户看到的是“添加 Agent → 登录并授权 → 查看权限清单 → 兼容性测试 → 接入完成”，
+            而不是复制接口文档、手工配置多个 URL 或长期保管高权限密钥。
           </div>
         </div>
       </section>
@@ -366,14 +438,14 @@
           <div class="phase-list">
             <article class="phase zero">
               <div class="phase-tag"><b>阶段 0</b><strong>技术验证</strong><span>3–5 个工作日</span></div>
-              <div><h3>证明关键依赖可用</h3><ul><li>NAS 目录只读扫描与测试目录写入</li><li>MongoDB 数据模型和基础索引</li><li>Voyage AI 调用与费用记录</li><li>文件哈希、对象 ID 与存储适配器</li><li>本地开发和 NAS 容器运行验证</li></ul></div>
-              <div class="gate"><strong>进入 MVP 的条件</strong><p>20 个样例文件可稳定扫描；重复扫描不产生重复对象；任意对象可由逻辑 ID 定位回 NAS 文件。</p></div>
+              <div><h3>证明关键依赖可用</h3><ul><li>NAS 目录只读扫描与测试目录写入</li><li>MongoDB 数据模型和基础索引</li><li>Voyage AI 调用与费用记录</li><li>文件哈希、对象 ID 与存储适配器</li><li>轻量 MCP 握手、工具发现和权限过滤 PoC</li><li>本地开发和 NAS 容器运行验证</li></ul></div>
+              <div class="gate"><strong>进入 MVP 的条件</strong><p>20 个样例文件可稳定扫描；重复扫描不产生重复对象；逻辑 ID 可定位文件；标准 MCP 客户端能连接并发现测试工具。</p></div>
             </article>
 
             <article class="phase mvp">
               <div class="phase-tag"><b>MVP</b><strong>数据可被 Agent 使用</strong><span>3–4 周</span></div>
-              <div><h3>完成最小真实闭环</h3><ul><li>网页数据管理</li><li>PDF/文本提取和向量检索</li><li>Agent Token 与三项核心 API</li><li>派生报告和来源引用</li><li>基础事件记录与软删除</li></ul></div>
-              <div class="gate"><strong>版本价值</strong><p>首次证明 Agent 可以在不直接遍历 NAS 的情况下，安全地发现、读取和引用私人数据。</p></div>
+              <div><h3>完成最小真实闭环</h3><ul><li>网页数据管理</li><li>PDF/文本提取和向量检索</li><li>轻量 MCP Gateway 与 OpenAPI 兼容</li><li>Agent Token 与核心工具</li><li>派生报告和来源引用</li><li>基础事件记录与软删除</li></ul></div>
+              <div class="gate"><strong>版本价值</strong><p>首次证明一个陌生 Agent 可以自动发现能力，并在不直接遍历 NAS 的情况下安全读取和引用私人数据。</p></div>
             </article>
 
             <article class="phase">
@@ -384,7 +456,7 @@
 
             <article class="phase">
               <div class="phase-tag"><b>V0.3</b><strong>Agent 执行</strong><span>4–5 周</span></div>
-              <div><h3>从“检索”升级为“完成任务”</h3><ul><li>Task、Run、Step 和最小检查点</li><li>Agent 修改草稿、创建正式产物</li><li>动作风险等级与逐次审批</li><li>浏览器能力优先接入，邮件随后接入</li><li>重试、取消、超时和外部动作收据</li></ul></div>
+              <div><h3>从“检索”升级为“完成任务”</h3><ul><li>Task、Run、Step 和最小检查点</li><li>Agent 修改草稿、创建正式产物</li><li>MCP 工具扩展与版本兼容策略</li><li>动作风险等级与逐次审批</li><li>浏览器能力优先接入，邮件随后接入</li><li>重试、取消、超时和外部动作收据</li></ul></div>
               <div class="gate"><strong>进入下一阶段的条件</strong><p>一个中断任务可继续；外部动作均能看到原因、授权、输入、结果和失败状态。</p></div>
             </article>
 
@@ -396,8 +468,8 @@
 
             <article class="phase">
               <div class="phase-tag"><b>V1.0</b><strong>可正式使用</strong><span>4–6 周</span></div>
-              <div><h3>补齐生产治理</h3><ul><li>网页多用户管理，App 单用户登录</li><li>细粒度 Token、临时授权和跨用户原因</li><li>回收站、待清除、永久清除和备份过期</li><li>管理员“仅系统管理/临时授权”模式</li><li>S3 适配、备份恢复、监控和安全加固</li></ul></div>
-              <div class="gate"><strong>正式使用条件</strong><p>权限越界测试全部拒绝；备份恢复演练通过；删除链路可解释；NAS 故障不会造成元数据与 Raw 对象关系丢失。</p></div>
+              <div><h3>补齐生产治理</h3><ul><li>网页多用户管理，App 单用户登录</li><li>面向 C 端的 OAuth 授权、撤销和重新授权</li><li>细粒度 Scope、临时授权和跨用户原因</li><li>Agent 接入管理、会话查看和风险提醒</li><li>回收站、待清除、永久清除和备份过期</li><li>管理员“仅系统管理/临时授权”模式</li><li>S3 适配、备份恢复、监控和安全加固</li></ul></div>
+              <div class="gate"><strong>正式使用条件</strong><p>主流兼容 Agent 可通过标准授权接入和撤销；权限越界测试全部拒绝；备份恢复演练通过；删除链路可解释。</p></div>
             </article>
 
             <article class="phase future">
@@ -422,6 +494,7 @@
                 <tr><td>NAS Raw 与稳定对象 ID</td><td class="yes">验证</td><td class="yes">正式使用</td><td>增强</td><td>沿用</td><td>沿用</td><td>S3 迁移</td></tr>
                 <tr><td>网页上传、浏览、软删除</td><td class="no">不做</td><td class="yes">完成</td><td>媒体预览</td><td>审批视图</td><td>沿用</td><td>多用户</td></tr>
                 <tr><td>Agent 搜索、读取、生成报告</td><td class="no">接口验证</td><td class="yes">完成</td><td>多模态</td><td>任务化</td><td>记忆辅助</td><td>多 Agent</td></tr>
+                <tr><td>Agent 标准接入与自发现</td><td class="yes">MCP PoC</td><td class="yes">MCP + OpenAPI</td><td>多模态工具</td><td>动作工具</td><td>移动审批</td><td>OAuth / 多 Agent</td></tr>
                 <tr><td>图片、音频、视频理解</td><td class="no">不做</td><td class="no">仅登记</td><td class="yes">完成</td><td>沿用</td><td>手机采集</td><td>模型升级</td></tr>
                 <tr><td>浏览器与邮件操作</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td class="yes">逐项接入</td><td>手机审批</td><td>更多第三方</td></tr>
                 <tr><td>Flutter App</td><td class="no">不做</td><td class="no">不做</td><td class="no">不做</td><td class="no">准备 API</td><td class="yes">完成</td><td>持续优化</td></tr>
@@ -445,6 +518,7 @@
           <div class="architecture">
             <div class="component"><i data-lucide="monitor"></i><h3>Web</h3><p>上传、浏览、搜索、详情、删除恢复和 Agent 产物查看。</p></div>
             <div class="component"><i data-lucide="blocks"></i><h3>应用后端</h3><p>单一 API，内部按数据、检索、Agent、权限、事件模块分层。</p></div>
+            <div class="component"><i data-lucide="plug"></i><h3>Agent Gateway</h3><p>提供 MCP 自发现和 OpenAPI 兼容入口，按当前授权动态暴露工具。</p></div>
             <div class="component"><i data-lucide="hard-drive"></i><h3>NAS Adapter</h3><p>Raw 文件只通过存储适配器访问，不把绝对路径暴露给 Agent。</p></div>
             <div class="component"><i data-lucide="database"></i><h3>MongoDB</h3><p>对象、元数据、任务、事件和向量索引使用同一数据库起步。</p></div>
             <div class="component"><i data-lucide="sparkles"></i><h3>处理 Worker</h3><p>文件提取、Embedding 和重试；MVP 不引入 Kafka 或 Kubernetes。</p></div>
@@ -453,6 +527,7 @@
             <strong>从第一天保留，但暂不实现完整功能</strong>
             所有对象包含 user_id、storage_provider、version、source 和 sensitivity；
             所有事件包含 actor、action、target、purpose、status 和 correlation_id。
+            Agent 工具包含 protocol_version、tool_version、required_scopes、risk_level 和 approval_mode。
             这些字段用于保证后续多用户、S3、权限和任务恢复无需重建基础数据。
           </div>
         </div>
@@ -466,13 +541,13 @@
           </div>
           <div class="release-rule">
             <div class="rule"><strong>范围冻结</strong><p>迭代开始后，新想法进入候选池。除非阻塞当前闭环，不临时加入开发范围。</p></div>
-            <div class="rule"><strong>证据验收</strong><p>每个版本必须用真实 NAS 样例、真实 Agent Token 和失败场景演示，不能只看页面。</p></div>
+            <div class="rule"><strong>证据验收</strong><p>每个版本必须用真实 NAS 样例、陌生 Agent 接入、真实授权和失败场景演示，不能只看页面。</p></div>
             <div class="rule"><strong>人工激活</strong><p>版本通过验收后由用户决定是否进入下一阶段；未通过则修复，不用新功能掩盖问题。</p></div>
           </div>
           <div class="decision">
             <strong>建议立即锁定的第一项工作</strong>
             先完成阶段 0，不直接进入完整 MVP。阶段 0 的输出应是一份可重复运行的技术验证报告，
-            明确 NAS、MongoDB、Voyage AI、对象 ID 和部署方式是否真实可行。
+            明确 NAS、MongoDB、Voyage AI、对象 ID、MCP 自发现和部署方式是否真实可行。
           </div>
         </div>
       </section>
